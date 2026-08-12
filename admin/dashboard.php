@@ -7,6 +7,45 @@
 require_once '../config/database.php';
 requireAdmin(); // Proteksi: hanya admin yang bisa akses
 
+// Handle ganti password admin
+$password_success = '';
+$password_error = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
+    $current_password = $_POST['current_password'];
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+        $password_error = 'Semua field password wajib diisi!';
+    } elseif ($new_password !== $confirm_password) {
+        $password_error = 'Password baru dan konfirmasi tidak sama!';
+    } elseif (strlen($new_password) < 6) {
+        $password_error = 'Password baru minimal 6 karakter!';
+    } else {
+        $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user && password_verify($current_password, $user['password'])) {
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+            $update = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $update->bind_param("si", $hashed_password, $_SESSION['user_id']);
+            if ($update->execute()) {
+                $password_success = 'Password berhasil diubah!';
+            } else {
+                $password_error = 'Gagal mengubah password!';
+            }
+            $update->close();
+        } else {
+            $password_error = 'Password saat ini salah!';
+        }
+        $stmt->close();
+    }
+}
+
 // Ambil statistik dari database
 $total_products = $conn->query("SELECT COUNT(*) as total FROM products")->fetch_assoc()['total'];
 $total_customers = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'customer'")->fetch_assoc()['total'];
@@ -90,6 +129,36 @@ $recent_orders = $conn->query("
                             <h3><?php echo $pending_orders; ?></h3>
                             <p>Menunggu Konfirmasi</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Ganti Password Admin -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🔐 Ganti Password Admin</h2>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($password_success): ?>
+                            <div class="alert alert-success"><?php echo $password_success; ?></div>
+                        <?php endif; ?>
+                        <?php if ($password_error): ?>
+                            <div class="alert alert-danger"><?php echo $password_error; ?></div>
+                        <?php endif; ?>
+                        <form method="POST" action="" style="max-width: 500px;">
+                            <div class="form-group">
+                                <label for="current_password">Password Saat Ini</label>
+                                <input type="password" id="current_password" name="current_password" class="form-control" placeholder="Masukkan password saat ini" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password">Password Baru</label>
+                                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Minimal 6 karakter" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password">Konfirmasi Password Baru</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Ulangi password baru" required>
+                            </div>
+                            <button type="submit" name="change_password" class="btn btn-primary">Ganti Password</button>
+                        </form>
                     </div>
                 </div>
 

@@ -22,3 +22,4 @@ Desktop.ini
 apk/node_modules/
 apk/android/
 apk/ios/
+.vercel
