@@ -1,0 +1,19 @@
+# File konfigurasi lokal
+config/database.php
+
+# Folder upload
+uploads/*
+
+# File sistem
+Thumbs.db
+Desktop.ini
+
+# File editor
+.vscode/
+.idea/
+
+# File log
+*.log
+
+# File sementara
+*.tmp
