@@ -38,11 +38,12 @@ $categories = $conn->query("SELECT DISTINCT kategori FROM products ORDER BY kate
                     <button type="submit" class="search-btn">🔍</button>
                 </form>
             </div>
-            <div class="navbar-menu">
+            <div class="navbar-menu" id="navbarMenu">
                 <a href="index.php" class="active">Beranda</a>
                 <a href="auth/login.php">Login</a>
                 <a href="auth/register.php" class="btn btn-primary btn-sm">Daftar</a>
             </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
         </div>
     </nav>
 
@@ -52,6 +53,28 @@ $categories = $conn->query("SELECT DISTINCT kategori FROM products ORDER BY kate
             <h1>Sparepart Berkualitas<br>Untuk Kendaraan Anda</h1>
             <p>Temukan berbagai sparepart otomotif dengan harga terbaik</p>
             <a href="auth/register.php" class="btn btn-primary">Belanja Sekarang</a>
+        </div>
+    </section>
+
+    <!-- Mobile App Download Section -->
+    <section class="app-download-section">
+        <div class="app-download-content">
+            <h2>Unduh Aplikasi Mobile <strong>Sparepart USK</strong></h2>
+            <p>Dapatkan pengalaman berbelanja yang lebih cepat dan nyaman dengan aplikasi mobile kami di ponsel Anda</p>
+            <div class="app-download-buttons">
+                <a href="apk/sparepart-usk.apk" class="btn btn-primary" id="downloadApkBtn" download="SparepartUSK.apk">
+                    ⬇️ Download APK
+                </a>
+                <a href="#" class="btn btn-secondary" id="openBrowserBtn" onclick="openInBrowser(); return false;">
+                    🌐 Buka di Browser
+                </a>
+            </div>
+            <div class="app-feature-list">
+                <div class="app-feature">⚡ Cepat</div>
+                <div class="app-feature">📱 Mudah Digunakan</div>
+                <div class="app-feature">💾 Ringan</div>
+                <div class="app-feature">🔄 Update Real-time</div>
+            </div>
         </div>
     </section>
 
@@ -107,13 +130,7 @@ $categories = $conn->query("SELECT DISTINCT kategori FROM products ORDER BY kate
         <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
     </footer>
 
-    <!-- Register Service Worker untuk PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js');
-            });
-        }
-    </script>
+    <!-- JavaScript -->
+    <script src="assets/js/script.js"></script>
 </body>
 </html>

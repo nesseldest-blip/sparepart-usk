@@ -137,5 +137,7 @@ $recent_orders = $conn->query("
             </div>
         </main>
     </div>
+    <!-- JavaScript -->
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>

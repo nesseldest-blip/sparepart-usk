@@ -142,5 +142,7 @@ $products = $conn->query("SELECT * FROM products ORDER BY created_at DESC");
             </div>
         </main>
     </div>
+    <!-- JavaScript -->
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>

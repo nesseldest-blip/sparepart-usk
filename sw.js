@@ -5,11 +5,11 @@
 
 const CACHE_NAME = 'sparepart-usk-v1';
 const urlsToCache = [
-    '/sparepart-usk/',
-    '/sparepart-usk/index.php',
-    '/sparepart-usk/assets/css/style.css',
-    '/sparepart-usk/assets/js/script.js',
-    '/sparepart-usk/manifest.json'
+    './',
+    'index.php',
+    'assets/css/style.css',
+    'assets/js/script.js',
+    'manifest.json'
 ];
 
 // Install service worker

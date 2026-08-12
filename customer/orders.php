@@ -43,12 +43,13 @@ $orders_result = $orders->get_result();
                     <button type="submit" class="search-btn">🔍</button>
                 </form>
             </div>
-            <div class="navbar-menu">
+            <div class="navbar-menu" id="navbarMenu">
                 <a href="dashboard.php">Beranda</a>
                 <a href="products.php">Produk</a>
                 <a href="orders.php" class="active">Transaksi</a>
                 <a href="logout.php" class="btn btn-danger btn-sm">Logout</a>
             </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
             <div class="navbar-user">
                 <span>👤 <?php echo $_SESSION['nama']; ?></span>
             </div>
@@ -109,5 +110,8 @@ $orders_result = $orders->get_result();
     <footer class="footer">
         <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
     </footer>
+
+    <!-- JavaScript -->
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>

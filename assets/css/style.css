@@ -341,6 +341,109 @@ img {
     font-size: 14px;
 }
 
+/* ===== NAVBAR TOGGLE (MOBILE HAMBURGER MENU) ===== */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px;
+    line-height: 1;
+}
+
+/* ===== MOBILE APP DOWNLOAD SECTION ===== */
+.app-download-section {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+    color: var(--white);
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.app-download-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.app-download-title {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.app-download-title strong {
+    color: var(--primary);
+}
+
+.app-download-desc {
+    font-size: 16px;
+    color: #ccc;
+    margin-bottom: 25px;
+}
+
+.app-download-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.app-download-buttons .btn {
+    padding: 14px 28px;
+    font-size: 16px;
+}
+
+.app-feature-list {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.app-feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* ===== FLOATING MOBILE DOWNLOAD BANNER ===== */
+.mobile-download-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--dark-2);
+    padding: 12px 15px;
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 2px solid var(--primary);
+}
+
+.mobile-download-banner .banner-text {
+    color: var(--white);
+    font-size: 13px;
+}
+
+.mobile-download-banner .banner-text strong {
+    color: var(--primary);
+}
+
+.mobile-download-banner .banner-btn {
+    display: flex;
+    gap: 8px;
+}
+
+.mobile-download-banner .banner-btn .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
 /* ===== HERO / BANNER ===== */
 .hero-section {
     background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
@@ -1241,9 +1344,30 @@ img {
         order: 3;
     }
 
+    .navbar-toggle {
+        display: block;
+        align-self: center;
+    }
+
     .navbar-menu {
-        justify-content: center;
-        flex-wrap: wrap;
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        padding: 10px 0;
+    }
+
+    .navbar-menu.active {
+        display: flex;
+    }
+
+    .mobile-download-banner {
+        display: flex;
+    }
+
+    .app-download-buttons {
+        flex-direction: column;
+        align-items: center;
     }
 
     .hero-content h1 {
@@ -1309,5 +1433,14 @@ img {
 
     .auth-card {
         padding: 25px;
+    }
+
+    .app-download-title {
+        font-size: 24px;
+    }
+
+    .app-download-buttons .btn {
+        padding: 12px 24px;
+        font-size: 14px;
     }
 }

@@ -129,7 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p>Sudah punya akun? <a href="login.php">Login Sekarang</a></p>
                 <p><a href="../index.php">← Kembali ke Beranda</a></p>
             </div>
+            </div>
         </div>
-    </div>
+
+    <!-- JavaScript -->
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>

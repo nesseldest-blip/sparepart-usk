@@ -100,7 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p>Belum punya akun? <a href="register.php">Daftar Sekarang</a></p>
                 <p><a href="../index.php">← Kembali ke Beranda</a></p>
             </div>
+            </div>
         </div>
-    </div>
+
+    <!-- JavaScript -->
+    <script src="../assets/js/script.js"></script>
 </body>
 </html>
