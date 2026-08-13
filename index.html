@@ -4,77 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sparepart USK - Toko Sparepart Otomotif</title>
-    <meta name="description" content="Toko sparepart otomotif online. Unduh aplikasi mobile kami di HP Anda.">
+    <meta name="description" content="Toko sparepart otomotif online terlengkap. Temukan sparepart berkualitas dengan harga terbaik.">
     <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="assets/images/icon-192.png">
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .php-warning { 
-            background: #fff3cd; 
-            border: 1px solid #ffc107; 
-            border-radius: 8px; 
-            padding: 15px; 
-            margin: 20px auto; 
-            max-width: 800px; 
-            font-size: 14px; 
-            color: #856404; 
-            text-align: left; 
-        }
-        .php-warning strong { color: #e63946; }
-        .php-warning a { color: #e63946; font-weight: 600; }
-    </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/" class="navbar-brand">
+            <a href="index.html" class="navbar-brand">
                 <span class="brand-icon">🔧</span>
                 <span class="brand-text">Sparepart <strong>USK</strong></span>
             </a>
+            <div class="navbar-search">
+                <form id="searchForm">
+                    <input type="text" name="search" id="searchInput" placeholder="Cari sparepart..." class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html" class="active">Beranda</a>
+                <a href="products.html">Produk</a>
+                <a href="cart.html" style="position:relative;">🛒 Keranjang <span id="cartBadge" class="badge badge-danger" style="display:none;position:absolute;top:-8px;right:-5px;">0</span></a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
             <button class="navbar-toggle" id="navbarToggle">☰</button>
         </div>
     </nav>
 
+    <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
             <h1>Sparepart Berkualitas<br>Untuk Kendaraan Anda</h1>
             <p>Temukan berbagai sparepart otomotif dengan harga terbaik</p>
-            <a href="#download" class="btn btn-primary">Unduh Aplikasi</a>
+            <a href="products.html" class="btn btn-primary">Belanja Sekarang</a>
         </div>
     </section>
 
-    <section class="app-download-section" id="download">
-        <div class="app-download-content">
-            <h2>Unduh Aplikasi Mobile <strong>Sparepart USK</strong></h2>
-            <p>Dapatkan pengalaman berbelanja yang lebih cepat dan nyaman dengan aplikasi mobile kami di ponsel Anda</p>
-            <div class="app-download-buttons">
-                <a href="apk/sparepart-usk.apk" class="btn btn-primary" download="SparepartUSK.apk">
-                    ⬇️ Download APK
-                </a>
-                <a href="#" class="btn btn-secondary" onclick="openInBrowser(); return false;">
-                    🌐 Buka di Browser
-                </a>
-            </div>
-            <div class="app-feature-list">
-                <div class="app-feature">⚡ Cepat</div>
-                <div class="app-feature">📱 Mudah Digunakan</div>
-                <div class="app-feature">💾 Ringan</div>
-                <div class="app-feature">🔄 Update Real-time</div>
-            </div>
+    <!-- Kategori -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Kategori Sparepart</h2>
+            <a href="products.html" class="btn btn-secondary btn-sm">Lihat Semua</a>
         </div>
+        <div class="category-grid" id="categoryGrid"></div>
     </section>
 
-    <div class="php-warning">
-        <strong>📋 Info Website:</strong> Ini adalah tampilan statis di Vercel.<br>
-        Untuk fitur lengkap (login, belanja, riwayat order, kelola produk), gunakan hosting dengan dukungan PHP + MySQL.<br>
-        Kunungi <strong>https://sparepart-usk.vercel.app</strong> untuk melihat info aplikasi, atau gunakan hosting PHP untuk fitur lengkap.
-    </div>
+    <!-- Produk Terbaru -->
+    <section class="section">
+        <div class="section-header">
+            <h2>Produk Terbaru</h2>
+            <a href="products.html" class="btn btn-secondary btn-sm">Lihat Semua</a>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+    </section>
 
+    <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
     </footer>
 
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script>
+        function renderCategories() {
+            var cats = App.getCategories();
+            var grid = document.getElementById('categoryGrid');
+            grid.innerHTML = cats.map(function(cat) {
+                return '<a href="products.html?kategori=' + encodeURIComponent(cat) + '" class="category-card">' +
+                    '<div class="category-icon">🔩</div>' +
+                    '<h3>' + cat + '</h3>' +
+                '</a>';
+            }).join('');
+        }
+
+        function renderProducts() {
+            var products = App.getProducts().slice(0, 8);
+            var grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(function(p) {
+                return '<div class="product-card">' +
+                    '<div class="product-image">' +
+                        '<div class="product-image-placeholder">🔧</div>' +
+                        '<span class="product-category">' + p.kategori + '</span>' +
+                    '</div>' +
+                    '<div class="product-info">' +
+                        '<h3>' + p.nama_produk + '</h3>' +
+                        '<p class="product-price">' + App.formatRupiah(p.harga) + '</p>' +
+                        '<p class="product-stock ' + (p.stok > 0 ? 'in-stock' : 'out-stock') + '">' +
+                            (p.stok > 0 ? 'Stok: ' + p.stok : 'Stok Habis') +
+                        '</p>' +
+                        '<div class="product-actions">' +
+                            '<a href="product-detail.html?id=' + p.id + '" class="btn btn-secondary btn-sm">Detail</a>' +
+                            '<button onclick="App.addToCart(' + p.id + '); alert(\'Ditambahkan ke keranjang!\')" class="btn btn-primary btn-sm" ' + (p.stok <= 0 ? 'disabled' : '') + '>Beli</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var q = document.getElementById('searchInput').value.trim();
+            if (q) window.location.href = 'products.html?search=' + encodeURIComponent(q);
+        });
+
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        renderCategories();
+        renderProducts();
+        updateAuthLinks();
+        App.updateCartBadge();
+    </script>
 </body>
 </html>

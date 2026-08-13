@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk - Sparepart USK</title>
+    <meta name="description" content="Detail produk sparepart otomotif Sparepart USK.">
+    <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <span class="brand-icon">🔧</span>
+                <span class="brand-text">Sparepart <strong>USK</strong></span>
+            </a>
+            <div class="navbar-search">
+                <form id="searchForm">
+                    <input type="text" name="search" id="searchInput" placeholder="Cari sparepart..." class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html">Beranda</a>
+                <a href="products.html">Produk</a>
+                <a href="cart.html" style="position:relative;">🛒 Keranjang <span id="cartBadge" class="badge badge-danger" style="display:none;position:absolute;top:-8px;right:-5px;">0</span></a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="page-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb">
+            <a href="index.html">Beranda</a> / <a href="products.html">Produk</a> / <span id="breadcrumbProduct">-</span>
+        </div>
+
+        <!-- Product Detail -->
+        <div class="detail-layout" id="detailLayout">
+            <div class="detail-image">
+                <div class="detail-image-placeholder" id="productImage">🔧</div>
+            </div>
+            <div class="detail-info">
+                <span class="badge badge-info" id="productCategory">-</span>
+                <h1 id="productName">-</h1>
+                <p class="detail-price" id="productPrice">-</p>
+                <div class="detail-stock" id="productStock">-</div>
+                <div class="detail-description">
+                    <h3>Deskripsi</h3>
+                    <p id="productDesc">-</p>
+                </div>
+                <div class="buy-form">
+                    <div class="form-group">
+                        <label for="qtyInput">Jumlah</label>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <button class="btn btn-secondary btn-sm" onclick="changeQty(-1)">-</button>
+                            <input type="number" id="qtyInput" value="1" min="1" class="form-control" style="width:80px;text-align:center;">
+                            <button class="btn btn-secondary btn-sm" onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddCart" onclick="addToCart()">🛒 Tambah ke Keranjang</button>
+                    <button class="btn btn-success" id="btnBuyNow" onclick="buyNow()">⚡ Beli Langsung</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Not Found -->
+        <div class="empty-state" id="notFound" style="display:none;">
+            <p>🔍 Produk tidak ditemukan.</p>
+            <a href="products.html" class="btn btn-primary">Kembali ke Produk</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        let product = null;
+
+        // Get product ID from URL
+        function getProductId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Load product
+        function loadProduct() {
+            const id = getProductId();
+            if (!id) {
+                showNotFound();
+                return;
+            }
+
+            product = App.getProduct(id);
+            if (!product) {
+                showNotFound();
+                return;
+            }
+
+            document.title = product.nama_produk + ' - Sparepart USK';
+            document.getElementById('breadcrumbProduct').textContent = product.nama_produk;
+            document.getElementById('productImage').textContent = product.gambar ? '' : '🔧';
+            document.getElementById('productCategory').textContent = product.kategori;
+            document.getElementById('productName').textContent = product.nama_produk;
+            document.getElementById('productPrice').textContent = App.formatRupiah(product.harga);
+            document.getElementById('productDesc').textContent = product.deskripsi || '-';
+
+            const stockEl = document.getElementById('productStock');
+            if (product.stok > 0) {
+                stockEl.innerHTML = '<span class="badge badge-success">Tersedia</span> <span style="margin-left:8px;color:#6c757d;font-size:14px;">Stok: ' + product.stok + '</span>';
+            } else {
+                stockEl.innerHTML = '<span class="badge badge-danger">Stok Habis</span>';
+                document.getElementById('btnAddCart').disabled = true;
+                document.getElementById('btnBuyNow').disabled = true;
+            }
+
+            document.getElementById('detailLayout').style.display = 'grid';
+            document.getElementById('notFound').style.display = 'none';
+        }
+
+        function showNotFound() {
+            document.getElementById('detailLayout').style.display = 'none';
+            document.getElementById('notFound').style.display = 'block';
+            document.getElementById('breadcrumb').style.display = 'none';
+        }
+
+        // Quantity controls
+        function changeQty(delta) {
+            const input = document.getElementById('qtyInput');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(val + delta, product ? product.stok : 99));
+            input.value = val;
+        }
+
+        // Add to cart
+        function addToCart() {
+            if (!product) return;
+            const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+            App.addToCart(product.id, qty);
+            alert(product.nama_produk + ' ditambahkan ke keranjang!');
+        }
+
+        // Buy now
+        function buyNow() {
+            if (!product) return;
+            if (!App.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            const qty = parseInt(document.getElementById('qtyInput').value) || 1;
+            App.addToCart(product.id, qty);
+            window.location.href = 'checkout.html';
+        }
+
+        // Search
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.getElementById('searchInput').value.trim();
+            if (q) window.location.href = 'products.html?search=' + encodeURIComponent(q);
+        });
+
+        // Auth links
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        // Mobile toggle
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Init
+        loadProduct();
+        updateAuthLinks();
+        App.updateCartBadge();
+    </script>
+</body>
+</html>

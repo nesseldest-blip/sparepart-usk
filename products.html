@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produk - Sparepart USK</title>
+    <meta name="description" content="Daftar produk sparepart otomotif Sparepart USK. Temukan sparepart berkualitas dengan harga terbaik.">
+    <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <span class="brand-icon">🔧</span>
+                <span class="brand-text">Sparepart <strong>USK</strong></span>
+            </a>
+            <div class="navbar-search">
+                <form id="searchForm">
+                    <input type="text" name="search" id="searchInput" placeholder="Cari sparepart..." class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html">Beranda</a>
+                <a href="products.html" class="active">Produk</a>
+                <a href="cart.html" style="position:relative;">🛒 Keranjang <span id="cartBadge" class="badge badge-danger" style="display:none;position:absolute;top:-8px;right:-5px;">0</span></a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="page-container">
+        <div class="page-header">
+            <h1 id="pageTitle">Semua Produk</h1>
+            <p id="pageSubtitle">Temukan sparepart otomotif yang Anda butuhkan</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group" id="filterGroup">
+                <span class="filter-label">Kategori:</span>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="product-grid" id="productGrid"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <p>🔍 Tidak ada produk ditemukan.</p>
+            <a href="products.html" class="btn btn-primary">Lihat Semua Produk</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        let currentCategory = '';
+        let currentSearch = '';
+
+        // Get URL params
+        function getParams() {
+            const params = new URLSearchParams(window.location.search);
+            currentSearch = params.get('search') || '';
+            currentCategory = params.get('kategori') || '';
+        }
+
+        // Render filter buttons
+        function renderFilters() {
+            const cats = App.getCategories();
+            const group = document.getElementById('filterGroup');
+            let html = '<span class="filter-label">Kategori:</span>';
+            html += `<button class="filter-btn ${!currentCategory ? 'active' : ''}" onclick="setCategory('')">Semua</button>`;
+            cats.forEach(cat => {
+                html += `<button class="filter-btn ${currentCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`;
+            });
+            group.innerHTML = html;
+        }
+
+        // Set category filter
+        function setCategory(cat) {
+            currentCategory = cat;
+            const params = new URLSearchParams(window.location.search);
+            if (cat) {
+                params.set('kategori', cat);
+            } else {
+                params.delete('kategori');
+            }
+            params.delete('search');
+            currentSearch = '';
+            document.getElementById('searchInput').value = '';
+            window.history.replaceState({}, '', 'products.html' + (params.toString() ? '?' + params.toString() : ''));
+            renderFilters();
+            renderProducts();
+            updateTitle();
+        }
+
+        // Update page title
+        function updateTitle() {
+            const title = document.getElementById('pageTitle');
+            const subtitle = document.getElementById('pageSubtitle');
+            if (currentSearch) {
+                title.textContent = 'Hasil Pencarian: "' + currentSearch + '"';
+                subtitle.textContent = 'Menampilkan produk yang sesuai dengan pencarian';
+            } else if (currentCategory) {
+                title.textContent = 'Kategori: ' + currentCategory;
+                subtitle.textContent = 'Menampilkan semua produk dalam kategori ini';
+            } else {
+                title.textContent = 'Semua Produk';
+                subtitle.textContent = 'Temukan sparepart otomotif yang Anda butuhkan';
+            }
+        }
+
+        // Render products
+        function renderProducts() {
+            let products;
+            if (currentSearch) {
+                products = App.searchProducts(currentSearch);
+                if (currentCategory) {
+                    products = products.filter(p => p.kategori === currentCategory);
+                }
+            } else if (currentCategory) {
+                products = App.filterByCategory(currentCategory);
+            } else {
+                products = App.getProducts();
+            }
+
+            const grid = document.getElementById('productGrid');
+            const empty = document.getElementById('emptyState');
+
+            if (products.length === 0) {
+                grid.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <div class="product-image-placeholder">🔧</div>
+                        <span class="product-category">${p.kategori}</span>
+                    </div>
+                    <div class="product-info">
+                        <h3>${p.nama_produk}</h3>
+                        <p class="product-price">${App.formatRupiah(p.harga)}</p>
+                        <p class="product-stock ${p.stok > 0 ? 'in-stock' : 'out-stock'}">
+                            ${p.stok > 0 ? 'Stok: ' + p.stok : 'Stok Habis'}
+                        </p>
+                        <div class="product-actions">
+                            <a href="product-detail.html?id=${p.id}" class="btn btn-secondary btn-sm">Detail</a>
+                            <button onclick="App.addToCart(${p.id}); alert('Ditambahkan ke keranjang!')" class="btn btn-primary btn-sm" ${p.stok <= 0 ? 'disabled' : ''}>Beli</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search form
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.getElementById('searchInput').value.trim();
+            const params = new URLSearchParams(window.location.search);
+            if (q) {
+                params.set('search', q);
+            } else {
+                params.delete('search');
+            }
+            params.delete('kategori');
+            currentCategory = '';
+            window.history.replaceState({}, '', 'products.html' + (params.toString() ? '?' + params.toString() : ''));
+            getParams();
+            renderFilters();
+            renderProducts();
+            updateTitle();
+        });
+
+        // Auth links
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        // Mobile toggle
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Init
+        getParams();
+        document.getElementById('searchInput').value = currentSearch;
+        renderFilters();
+        renderProducts();
+        updateTitle();
+        updateAuthLinks();
+        App.updateCartBadge();
+    </script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja - Sparepart USK</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <span class="brand-icon">🔧</span>
+                <span class="brand-text">Sparepart <strong>USK</strong></span>
+            </a>
+            <div class="navbar-search">
+                <form id="searchForm">
+                    <input type="text" name="search" id="searchInput" placeholder="Cari sparepart..." class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html">Beranda</a>
+                <a href="products.html">Produk</a>
+                <a href="cart.html" class="active" style="position:relative;">🛒 Keranjang <span id="cartBadge" class="badge badge-danger" style="display:none;position:absolute;top:-8px;right:-5px;">0</span></a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>🛒 Keranjang Belanja</h1>
+            <p>Periksa barang di keranjang Anda sebelum checkout</p>
+        </div>
+
+        <div id="emptyCart" class="empty-state" style="display:none;">
+            <p>Keranjang Anda kosong</p>
+            <a href="products.html" class="btn btn-primary">Mulai Belanja</a>
+        </div>
+
+        <div id="cartContent" style="display:none;">
+            <div class="checkout-layout">
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Item di Keranjang</h2>
+                            <span id="cartCount" style="font-size:14px;color:var(--gray);"></span>
+                        </div>
+                        <div class="card-body" id="cartItems"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Ringkasan</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="checkout-summary">
+                                <div class="summary-row">
+                                    <span>Subtotal</span>
+                                    <span id="subtotal">Rp 0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Ongkos Kirim</span>
+                                    <span style="color:var(--success);">Gratis</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span><strong>Total</strong></span>
+                                    <span><strong id="totalPrice" class="total-price">Rp 0</strong></span>
+                                </div>
+                            </div>
+
+                            <a href="checkout.html" class="btn btn-primary btn-block" id="checkoutBtn">Lanjut ke Checkout</a>
+                            <a href="products.html" class="btn btn-secondary btn-block" style="margin-top:10px;">Lanjut Belanja</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        function renderCart() {
+            const cart = App.getCart();
+            const products = App.getProducts();
+
+            if (cart.length === 0) {
+                document.getElementById('emptyCart').style.display = 'block';
+                document.getElementById('cartContent').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('emptyCart').style.display = 'none';
+            document.getElementById('cartContent').style.display = 'block';
+
+            const totalQty = cart.reduce((s, c) => s + c.qty, 0);
+            document.getElementById('cartCount').textContent = totalQty + ' item';
+
+            const container = document.getElementById('cartItems');
+            container.innerHTML = cart.map(c => {
+                const p = products.find(x => x.id === c.productId);
+                if (!p) return '';
+                const subtotal = p.harga * c.qty;
+                return `
+                <div class="cart-product" style="padding:15px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:15px;">
+                    <div class="cart-product-placeholder">🔧</div>
+                    <div style="flex:1;min-width:0;">
+                        <h3 style="font-size:15px;margin-bottom:4px;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nama_produk}</h3>
+                        <p style="font-size:14px;color:var(--primary);font-weight:600;">${App.formatRupiah(p.harga)}</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button class="btn btn-secondary btn-sm" onclick="changeQty(${p.id}, -1)" style="padding:6px 10px;">-</button>
+                        <input type="number" class="form-control cart-qty" value="${c.qty}" min="1" onchange="setQty(${p.id}, this.value)" style="text-align:center;width:60px;">
+                        <button class="btn btn-secondary btn-sm" onclick="changeQty(${p.id}, 1)" style="padding:6px 10px;">+</button>
+                    </div>
+                    <div style="text-align:right;min-width:120px;">
+                        <p style="font-size:14px;font-weight:600;color:var(--dark);">${App.formatRupiah(subtotal)}</p>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeItem(${p.id})" style="padding:6px 10px;">✕</button>
+                </div>`;
+            }).join('');
+
+            updateTotals();
+        }
+
+        function changeQty(id, delta) {
+            const cart = App.getCart();
+            const item = cart.find(c => c.productId === id);
+            if (item) {
+                item.qty = Math.max(1, item.qty + delta);
+                App.saveCart(cart);
+                App.updateCartBadge();
+                renderCart();
+            }
+        }
+
+        function setQty(id, val) {
+            const qty = parseInt(val);
+            if (qty >= 1) {
+                App.updateCartQty(id, qty);
+                renderCart();
+            }
+        }
+
+        function removeItem(id) {
+            if (confirm('Hapus item dari keranjang?')) {
+                App.removeFromCart(id);
+                renderCart();
+            }
+        }
+
+        function updateTotals() {
+            const total = App.getCartTotal();
+            document.getElementById('subtotal').textContent = App.formatRupiah(total);
+            document.getElementById('totalPrice').textContent = App.formatRupiah(total);
+        }
+
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.getElementById('searchInput').value.trim();
+            if (q) window.location.href = 'products.html?search=' + encodeURIComponent(q);
+        });
+
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        renderCart();
+        updateAuthLinks();
+        App.updateCartBadge();
+    </script>
+</body>
+</html>

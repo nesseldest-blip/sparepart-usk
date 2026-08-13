@@ -1,28 +1,33 @@
 // ============================================
 // SERVICE WORKER - PWA Sparepart USK
-// Memungkinkan website di-install sebagai APK
 // ============================================
 
-const CACHE_NAME = 'sparepart-usk-v1';
+const CACHE_NAME = 'sparepart-usk-v2';
 const urlsToCache = [
     './',
-    'index.php',
+    'index.html',
+    'login.html',
+    'register.html',
+    'products.html',
+    'product-detail.html',
+    'cart.html',
+    'checkout.html',
+    'orders.html',
+    'admin.html',
     'assets/css/style.css',
+    'assets/js/app.js',
     'assets/js/script.js',
     'manifest.json'
 ];
 
-// Install service worker
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                return cache.addAll(urlsToCache);
-            })
+            .then(cache => cache.addAll(urlsToCache))
     );
+    self.skipWaiting();
 });
 
-// Aktifkan service worker
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
@@ -35,18 +40,14 @@ self.addEventListener('activate', event => {
             );
         })
     );
+    self.clients.claim();
 });
 
-// Fetch - gunakan cache dulu, lalu network
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // Jika ada di cache, kembalikan
-                if (response) {
-                    return response;
-                }
-                // Jika tidak, fetch dari network
+                if (response) return response;
                 return fetch(event.request);
             })
     );

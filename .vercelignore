@@ -1,0 +1,9 @@
+apk/
+.git/
+.gitignore
+node_modules/
+uploads/
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp

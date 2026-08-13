@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+  command = "echo 'Static site - no build required'"
+
+[[redirects]]
+  from = "/*.php"
+  to = "/"
+  status = 308
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

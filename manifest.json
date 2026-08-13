@@ -2,7 +2,7 @@
   "name": "Sparepart USK",
   "short_name": "Sparepart",
   "description": "Toko Sparepart Otomotif Online",
-  "start_url": "index.php",
+  "start_url": "index.html",
   "scope": ".",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],

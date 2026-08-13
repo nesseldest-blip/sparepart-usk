@@ -1,0 +1,106 @@
+# ============================================
+# .htaccess - Konfigurasi Apache Server
+# Untuk keamanan dan routing website
+# ============================================
+
+# Aktifkan mod_rewrite
+RewriteEngine On
+
+# ============================================
+# KEAMANAN
+# ============================================
+
+# Sembunyikan file konfigurasi database
+<Files "config/database.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "config/database.example.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Sembunyikan file setup (hapus setelah setup selesai)
+<Files "setup.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Sembunyikan file .htaccess
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Blok akses ke folder .git
+<IfModule mod_rewrite.c>
+    RewriteRule ^\.git - [F,L]
+</IfModule>
+
+# Blok akses ke folder uploads yang tidak memiliki file gambar
+<IfModule mod_rewrite.c>
+    RewriteRule ^uploads/.*\.php$ - [F,L]
+</IfModule>
+
+# ============================================
+# HEADER KEAMANAN
+# ============================================
+
+# X-Content-Type-Options
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ============================================
+# KOMPRERSI (GZIP)
+# ============================================
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# ============================================
+# CACHE (BROWSING CEPAT)
+# ============================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType application/json "access plus 0 seconds"
+</IfModule>
+
+# ============================================
+# DEFAULT DIRECTORY INDEX
+# ============================================
+
+DirectoryIndex index.php index.html
+
+# ============================================
+# PHP SETTINGS (jika didukung hosting)
+# ============================================
+
+<IfModule mod_php.c>
+    php_value upload_max_filesize 5M
+    php_value post_max_size 10M
+    php_value max_execution_time 60
+    php_value max_input_time 60
+</IfModule>
+
+# ============================================
+# CUSTOM ERROR PAGES
+# ============================================
+
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php

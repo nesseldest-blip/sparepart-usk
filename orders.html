@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Saya - Sparepart USK</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <span class="brand-icon">🔧</span>
+                <span class="brand-text">Sparepart <strong>USK</strong></span>
+            </a>
+            <div class="navbar-search">
+                <form id="searchForm">
+                    <input type="text" name="search" id="searchInput" placeholder="Cari sparepart..." class="search-input">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html">Beranda</a>
+                <a href="products.html">Produk</a>
+                <a href="cart.html" style="position:relative;">🛒 Keranjang <span id="cartBadge" class="badge badge-danger" style="display:none;position:absolute;top:-8px;right:-5px;">0</span></a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html" class="active">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="page-container">
+        <div class="page-header">
+            <h1>Pesanan Saya</h1>
+            <p>Riwayat pesanan Anda</p>
+        </div>
+
+        <div id="ordersContainer"></div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detail Pesanan</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Check login
+        if (!App.requireLogin()) throw new Error('Redirecting');
+
+        // Render orders
+        function renderOrders() {
+            const orders = App.getUserOrders();
+            const container = document.getElementById('ordersContainer');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>📦 Belum ada pesanan</p>
+                        <a href="products.html" class="btn btn-primary">Mulai Belanja</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No. Pesanan</th>
+                                        <th>Tanggal</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${orders.map(o => `
+                                        <tr>
+                                            <td><strong>${o.order_number}</strong></td>
+                                            <td>${new Date(o.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+                                            <td class="total-price">${App.formatRupiah(o.total)}</td>
+                                            <td><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
+                                            <td class="text-center">
+                                                <button class="btn btn-info btn-sm" onclick='showDetail(${JSON.stringify(o).replace(/'/g, "&#39;")})'>Detail</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show order detail modal
+        function showDetail(order) {
+            document.getElementById('modalTitle').textContent = 'Detail Pesanan ' + order.order_number;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="detail-section">
+                    <h3>Informasi Pesanan</h3>
+                    <p><strong>No. Pesanan:</strong> ${order.order_number}</p>
+                    <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p><strong>Status:</strong> <span class="badge badge-${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></p>
+                    <p><strong>Alamat:</strong> ${order.alamat}</p>
+                </div>
+                <div class="detail-section">
+                    <h3>Item Pesanan</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Harga</th>
+                                    <th>Jumlah</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.details.map(d => `
+                                    <tr>
+                                        <td>${d.nama_produk}</td>
+                                        <td>${App.formatRupiah(d.harga)}</td>
+                                        <td>${d.jumlah}</td>
+                                        <td class="total-price">${App.formatRupiah(d.subtotal)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-right"><strong>Total</strong></td>
+                                    <td class="total-price"><strong>${App.formatRupiah(order.total)}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('orderModal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('orderModal').classList.remove('show');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('orderModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Search
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.getElementById('searchInput').value.trim();
+            if (q) window.location.href = 'products.html?search=' + encodeURIComponent(q);
+        });
+
+        // Auth links
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        // Mobile toggle
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Init
+        renderOrders();
+        updateAuthLinks();
+        App.updateCartBadge();
+    </script>
+</body>
+</html>

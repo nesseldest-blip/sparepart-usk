@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sparepart USK</title>
+    <meta name="description" content="Login ke akun Sparepart USK Anda">
+    <meta name="theme-color" content="#e63946">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <span class="brand-icon">🔧</span>
+                <span class="brand-text">Sparepart <strong>USK</strong></span>
+            </a>
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="index.html">Beranda</a>
+                <a href="products.html">Produk</a>
+                <a href="cart.html">🛒 Keranjang</a>
+                <div id="authLinks">
+                    <a href="login.html" class="active">Login</a>
+                    <a href="register.html" class="btn btn-primary btn-sm">Daftar</a>
+                </div>
+                <div id="userLinks" style="display:none;">
+                    <a href="orders.html">Pesanan Saya</a>
+                    <a href="#" onclick="App.logout()" class="btn btn-danger btn-sm">Logout</a>
+                </div>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Auth Body -->
+    <div class="auth-body">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">🔧</div>
+                    <h1>Login</h1>
+                    <p>Masuk ke akun Sparepart USK Anda</p>
+                </div>
+
+                <div id="alertBox" style="display:none;"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="Masukkan email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Belum punya akun? <a href="register.html">Daftar sekarang</a></p>
+                    <p><a href="index.html">← Kembali ke beranda</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Sparepart USK. Tugas USK Rekayasa Perangkat Lunak.</p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        function showAlert(message, type) {
+            var alertBox = document.getElementById('alertBox');
+            alertBox.className = 'alert alert-' + type;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function updateAuthLinks() {
+            if (App.isLoggedIn()) {
+                document.getElementById('authLinks').style.display = 'none';
+                document.getElementById('userLinks').style.display = 'flex';
+            } else {
+                document.getElementById('authLinks').style.display = 'flex';
+                document.getElementById('userLinks').style.display = 'none';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showAlert('Semua field harus diisi!', 'danger');
+                return;
+            }
+
+            var result = App.login(email, password);
+            if (result.success) {
+                showAlert('Login berhasil! Mengalihkan...', 'success');
+                setTimeout(function() {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        });
+
+        // Mobile toggle
+        document.getElementById('navbarToggle').addEventListener('click', function() {
+            document.getElementById('navbarMenu').classList.toggle('active');
+            this.textContent = document.getElementById('navbarMenu').classList.contains('active') ? '✕' : '☰';
+        });
+
+        updateAuthLinks();
+    </script>
+</body>
+</html>

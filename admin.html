@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Sparepart USK</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🔧</div>
+                <h2>Sparepart USK</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" onclick="showTab('dashboard')">📊 Dashboard</a>
+                <a href="#" onclick="showTab('products')">📦 Produk</a>
+                <a href="#" onclick="showTab('orders')">🧾 Pesanan</a>
+                <a href="#" onclick="App.logout()">🚪 Logout</a>
+            </nav>
+            <div class="sidebar-footer">
+                &copy; 2026 Sparepart USK
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <div class="topbar">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="topbar-user">
+                    <span id="adminName"></span>
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="admin-tab">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Pesanan Terbaru</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No. Pesanan</th>
+                                            <th>Pelanggan</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentOrdersBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div id="tab-products" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Daftar Produk</h2>
+                            <button class="btn btn-primary btn-sm" onclick="showAddProductForm()">+ Tambah Produk</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Produk</th>
+                                            <th>Kategori</th>
+                                            <th>Harga</th>
+                                            <th>Stok</th>
+                                            <th class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Tab -->
+                <div id="tab-orders" class="admin-tab" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Semua Pesanan</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No. Pesanan</th>
+                                            <th>Pelanggan</th>
+                                            <th>Tanggal</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="allOrdersBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="productModalTitle">Tambah Produk</h2>
+                <button class="modal-close" onclick="closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm" onsubmit="handleProductSubmit(event)">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <input type="text" id="productCategory" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Harga</label>
+                            <input type="number" id="productPrice" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Stok</label>
+                            <input type="number" id="productStock" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gambar URL (opsional)</label>
+                            <input type="text" id="productImage" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi</label>
+                        <textarea id="productDesc" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="confirm-actions">
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Check admin
+        if (!App.requireAdmin()) throw new Error('Redirecting');
+
+        const admin = App.getCurrentUser();
+        document.getElementById('adminName').textContent = admin ? admin.nama : 'Admin';
+
+        // Tab navigation
+        function showTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+
+            document.getElementById('tab-' + tab).style.display = 'block';
+            event.target.classList.add('active');
+
+            const titles = { dashboard: 'Dashboard', products: 'Manajemen Produk', orders: 'Manajemen Pesanan' };
+            document.getElementById('pageTitle').textContent = titles[tab] || tab;
+
+            if (tab === 'dashboard') renderDashboard();
+            if (tab === 'products') renderProductsTable();
+            if (tab === 'orders') renderAllOrders();
+        }
+
+        // Dashboard
+        function renderDashboard() {
+            const stats = App.getStats();
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>${stats.totalOrders}</h3>
+                        <p>Total Pesanan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔧</div>
+                    <div class="stat-info">
+                        <h3>${stats.totalProducts}</h3>
+                        <p>Total Produk</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>${stats.totalUsers}</h3>
+                        <p>Total Pelanggan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>${App.formatRupiah(stats.totalRevenue)}</h3>
+                        <p>Total Pendapatan</p>
+                    </div>
+                </div>
+            `;
+
+            const orders = App.getAllOrders().slice(-5).reverse();
+            document.getElementById('recentOrdersBody').innerHTML = orders.length === 0
+                ? '<tr><td colspan="4" class="text-center">Belum ada pesanan</td></tr>'
+                : orders.map(o => `
+                    <tr>
+                        <td><strong>${o.order_number}</strong></td>
+                        <td>${o.user_nama}</td>
+                        <td class="total-price">${App.formatRupiah(o.total)}</td>
+                        <td><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
+                    </tr>
+                `).join('');
+        }
+
+        // Products table
+        function renderProductsTable() {
+            const products = App.getProducts();
+            document.getElementById('productsBody').innerHTML = products.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${p.nama_produk}</td>
+                    <td>${p.kategori}</td>
+                    <td>${App.formatRupiah(p.harga)}</td>
+                    <td>${p.stok}</td>
+                    <td class="text-center">
+                        <div class="action-btns">
+                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Hapus</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // All orders table
+        function renderAllOrders() {
+            const orders = App.getAllOrders();
+            document.getElementById('allOrdersBody').innerHTML = orders.length === 0
+                ? '<tr><td colspan="6" class="text-center">Belum ada pesanan</td></tr>'
+                : orders.map(o => `
+                    <tr>
+                        <td><strong>${o.order_number}</strong></td>
+                        <td>${o.user_nama}</td>
+                        <td>${new Date(o.created_at).toLocaleDateString('id-ID')}</td>
+                        <td class="total-price">${App.formatRupiah(o.total)}</td>
+                        <td>
+                            <select class="form-control form-control-sm" onchange="updateOrderStatus(${o.id}, this.value)">
+                                <option value="menunggu" ${o.status === 'menunggu' ? 'selected' : ''}>Menunggu</option>
+                                <option value="diproses" ${o.status === 'diproses' ? 'selected' : ''}>Diproses</option>
+                                <option value="selesai" ${o.status === 'selesai' ? 'selected' : ''}>Selesai</option>
+                            </select>
+                        </td>
+                        <td class="text-center"><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
+                    </tr>
+                `).join('');
+        }
+
+        // Add product form
+        function showAddProductForm() {
+            document.getElementById('productModalTitle').textContent = 'Tambah Produk';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModal').classList.add('show');
+        }
+
+        // Edit product
+        function editProduct(id) {
+            const product = App.getProduct(id);
+            if (!product) return;
+            document.getElementById('productModalTitle').textContent = 'Edit Produk';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productName').value = product.nama_produk;
+            document.getElementById('productCategory').value = product.kategori;
+            document.getElementById('productPrice').value = product.harga;
+            document.getElementById('productStock').value = product.stok;
+            document.getElementById('productImage').value = product.gambar || '';
+            document.getElementById('productDesc').value = product.deskripsi || '';
+            document.getElementById('productModal').classList.add('show');
+        }
+
+        // Handle product submit
+        function handleProductSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('productId').value;
+            const data = {
+                nama_produk: document.getElementById('productName').value,
+                kategori: document.getElementById('productCategory').value,
+                harga: parseInt(document.getElementById('productPrice').value),
+                stok: parseInt(document.getElementById('productStock').value),
+                gambar: document.getElementById('productImage').value,
+                deskripsi: document.getElementById('productDesc').value
+            };
+
+            if (id) {
+                App.updateProduct(parseInt(id), data);
+            } else {
+                App.addProduct(data);
+            }
+
+            closeProductModal();
+            renderProductsTable();
+        }
+
+        // Delete product
+        function deleteProduct(id) {
+            if (confirm('Yakin ingin menghapus produk ini?')) {
+                App.deleteProduct(id);
+                renderProductsTable();
+            }
+        }
+
+        // Update order status
+        function updateOrderStatus(orderId, status) {
+            App.updateOrderStatus(orderId, status);
+            renderAllOrders();
+        }
+
+        // Close product modal
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('show');
+        }
+
+        document.getElementById('productModal').addEventListener('click', function(e) {
+            if (e.target === this) closeProductModal();
+        });
+
+        // Init
+        renderDashboard();
+    </script>
+</body>
+</html>
