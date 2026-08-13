@@ -17,6 +17,7 @@ Desktop.ini
 
 # File sementara
 *.tmp
+o_*
 
 # APK build
 apk/node_modules/
