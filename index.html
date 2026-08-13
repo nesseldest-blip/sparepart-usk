@@ -47,7 +47,40 @@
         <div class="hero-content">
             <h1>Sparepart Berkualitas<br>Untuk Kendaraan Anda</h1>
             <p>Temukan berbagai sparepart otomotif dengan harga terbaik</p>
-            <a href="products.html" class="btn btn-primary">Belanja Sekarang</a>
+            <div class="hero-buttons">
+                <a href="products.html" class="btn btn-primary">Belanja Sekarang</a>
+                <button onclick="App.installPWA()" class="btn btn-success" id="installBtn" style="display:none;">Unduh Aplikasi</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Download Section -->
+    <section class="section mobile-download-section" id="mobileDownloadSection" style="display:none;">
+        <div class="section-header" style="flex-direction:column;text-align:center;">
+            <h2>Unduh Aplikasi Mobile Sparepart USK</h2>
+            <p style="color:#aaa;margin:10px 0 20px;">Dapatkan pengalaman berbelanja yang lebih cepat dan nyaman dengan aplikasi mobile kami di ponsel Anda</p>
+            <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="App.installPWA()" class="btn btn-primary" id="mobileInstallBtn" style="display:flex;align-items:center;gap:8px;">
+                    <span>&#128229;</span> Download APK
+                </button>
+                <a href="https://sparepart-usk.vercel.app" class="btn btn-secondary" id="browserBtn" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+                    <span>&#127760;</span> Buka di Browser
+                </a>
+            </div>
+            <div style="display:flex;gap:30px;justify-content:center;margin-top:25px;color:#aaa;font-size:14px;">
+                <span>&#9889; Cepat</span>
+                <span>&#128187; Mudah Digunakan</span>
+                <span>&#128230; Ringan</span>
+                <span>&#128260; Update Real-time</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Vercel -->
+    <section class="section" id="infoSection" style="display:none;">
+        <div style="max-width:800px;margin:0 auto;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:20px;color:#333;">
+            <p style="margin:0 0 5px;font-weight:bold;">&#128203; <strong>Info Website:</strong> Ini adalah tampilan statis di Vercel.</p>
+            <p style="margin:0;">Untuk fitur lengkap (login, belanja, riwayat order, kelola produk), gunakan hosting dengan dukungan PHP + MySQL.</p>
         </div>
     </section>
 
@@ -136,6 +169,36 @@
         renderProducts();
         updateAuthLinks();
         App.updateCartBadge();
+
+        // PWA Install handling
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            App._deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'inline-block';
+            document.getElementById('mobileInstallBtn').style.display = 'flex';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            document.getElementById('installBtn').style.display = 'none';
+            document.getElementById('mobileInstallBtn').style.display = 'none';
+        });
+
+        // Show mobile section on mobile devices
+        function checkMobile() {
+            var isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+            var section = document.getElementById('mobileDownloadSection');
+            var info = document.getElementById('infoSection');
+            if (isMobile && section) {
+                section.style.display = 'block';
+            }
+            if (info) {
+                info.style.display = 'block';
+            }
+        }
+        checkMobile();
     </script>
 </body>
 </html>

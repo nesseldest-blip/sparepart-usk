@@ -483,6 +483,25 @@ img {
     color: #ccc;
 }
 
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.mobile-download-section {
+    background: var(--dark);
+    color: var(--white);
+    border-radius: 12px;
+    padding: 40px 20px;
+}
+
+.mobile-download-section h2 {
+    color: var(--white);
+    font-size: 24px;
+}
+
 /* ===== SECTION ===== */
 .section {
     max-width: 1200px;
