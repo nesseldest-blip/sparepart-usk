@@ -41,7 +41,6 @@ const App = {
     // ============================================
     init() {
         this.initStorage();
-        this.registerSW();
     },
 
     initStorage() {
@@ -376,44 +375,7 @@ const App = {
         };
     },
 
-    // ============================================
-    // SERVICE WORKER & PWA
-    // ============================================
-    registerSW() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
-    },
 
-    installPWA() {
-        if (this._deferredPrompt) {
-            this._deferredPrompt.prompt();
-            this._deferredPrompt.userChoice.then((result) => {
-                if (result.outcome === 'accepted') {
-                    alert('Aplikasi berhasil diinstall!');
-                }
-                this._deferredPrompt = null;
-            });
-        } else {
-            // Fallback: guide user to install manually
-            var isAndroid = /Android/i.test(navigator.userAgent);
-            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            var msg = 'Cara install aplikasi ini:\n\n';
-            if (isAndroid) {
-                msg += '1. Klik ikon 3 titik (⋮) di browser\n';
-                msg += '2. Pilih "Install app" atau "Tambahkan ke Layar Utama"\n';
-                msg += '3. Klik "Install"';
-            } else if (isIOS) {
-                msg += '1. Klik tombol Share (⬆) di Safari\n';
-                msg += '2. Pilih "Add to Home Screen"\n';
-                msg += '3. Klik "Add"';
-            } else {
-                msg += '1. Klik ikon gembok/lock di address bar\n';
-                msg += '2. Pilih "Install" atau "Add to Home Screen"';
-            }
-            alert(msg);
-        }
-    }
 };
 
 // Initialize
